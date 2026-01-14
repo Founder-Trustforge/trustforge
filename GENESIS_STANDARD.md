@@ -1,10 +1,12 @@
-# TrustForge Genesis TrustScore Standard v0.1  
-*Published: January 13, 2026 | ENS: trustforge.eth*
+# VeriChain Genesis TrustScore Standard v0.1  
+*Published: January 13, 2026 | ENS: verichain.eth*
 
-This standard defines how crypto projects can earn a **Genesis TrustScore**—a verifiable, on-chain reputation metric—before token launch.
+This standard defines how crypto projects can earn a **Genesis TrustScore**—a verifiable, on-chain reputation metric based on **behavioral integrity**, not document claims.
+
+> ⚠️ **Note**: VeriChain verifies **on-chain actions** (e.g., LP locks, governance participation). We do **not** verify off-chain documents like KYC, diplomas, or PDFs.
 
 ## Purpose
-To distinguish legitimate builders from scam artists by rewarding transparency, consistency, and user-centric behavior.
+To distinguish legitimate builders from scam artists by rewarding transparency, consistency, and user-centric behavior in DeFi and token launches.
 
 ## Scoring Categories (Max: 500 pts)
 
@@ -27,8 +29,8 @@ To distinguish legitimate builders from scam artists by rewarding transparency, 
 ## How to Submit
 1. Deploy your project’s core wallet or ENS  
 2. Perform trust-building actions  
-3. Submit for scoring at [trustforge.vercel.app](https://trustforge.vercel.app) (coming soon)  
+3. Submit for scoring at [verichain.xyz](https://verichain.xyz) (coming soon)  
 
 > This standard is open for community feedback. Propose changes via GitHub Issues.
 
-© 2026 TrustForge Protocol — Building the immune system for Web3.
+© 2026 VeriChain Protocol — Building the immune system for Web3.
