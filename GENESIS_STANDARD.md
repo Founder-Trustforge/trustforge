@@ -29,8 +29,8 @@ To distinguish legitimate builders from scam artists by rewarding transparency, 
 ## How to Submit
 1. Deploy your project’s core wallet or ENS  
 2. Perform trust-building actions  
-3. Submit for scoring at [ethosifi.xyz](https://ethosifi.xyz) (coming soon)  
+3. Submit for scoring at [ethosifi.com](https://ethosifi.com)   
 
 > This standard is open for community feedback. Propose changes via GitHub Issues.
 
-© 2026 EthosiFi Protocol — Building the immune system for Web3.
+© 2026 EthosiFi Protocol — Building the immune system for Web3/Web4
