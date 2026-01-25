@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EthosiFi — Proof of Ethics, On-Chain</title>
-  <!-- Ethers.js for on-chain verification -->
+  <!-- Ethers.js - MUST be in head for global availability -->
   <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" type="application/javascript"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -576,53 +576,86 @@
       }
     }
 
-    let verifier = null;
-
+    // ===== ENHANCED VERIFICATION FUNCTION =====
     function runVerification() {
-      const input = document.getElementById('verifyAddress').value.trim();
-      if (!ethers.utils.isAddress(input)) {
-        alert("Please enter a valid Ethereum address.");
+      if (typeof ethers === 'undefined') {
+        alert("⚠️ Loading blockchain tools... Please wait 5 seconds and try again.");
         return;
       }
 
-      if (!verifier) verifier = new EthoscanVerifier();
+      const input = document.getElementById('verifyAddress').value.trim();
+      if (!input) {
+        alert("Please enter a wallet address.");
+        return;
+      }
+
+      let address;
+      try {
+        address = ethers.utils.getAddress(input);
+      } catch (e) {
+        alert("Invalid Ethereum address. Please check and try again.");
+        return;
+      }
+
+      if (!window.verifier) {
+        try {
+          window.verifier = new EthoscanVerifier();
+        } catch (e) {
+          alert("Failed to initialize verifier. Make sure you're online.");
+          console.error(e);
+          return;
+        }
+      }
 
       const resultDiv = document.getElementById('reportContent');
       const container = document.getElementById('verificationResult');
       container.style.display = 'block';
-      resultDiv.innerHTML = '<p>Verifying... (this may take 10-20 seconds)</p>';
+      resultDiv.innerHTML = `
+        <p>🔍 Verifying on-chain integrity...</p>
+        <p style="font-size:0.9rem; opacity:0.7;">This may take 10-20 seconds. We're reading public data from Base Mainnet.</p>
+      `;
 
-      verifier.verify(input).then(report => {
-        let html = `
-          <div style="background:rgba(10,18,35,0.7); padding:1.2rem; border-radius:12px; margin:1rem 0;">
-            <div><strong>Address:</strong> ${report.address}</div>
-            <div><strong>Score:</strong> <span style="color:#6ee7b7; font-weight:bold;">${report.score}/500</span></div>
-            <div><strong>Tier:</strong> ${report.tier}</div>
-          </div>
-          
-          <h4>Trust Pillars</h4>
-          <div class="trust-row"><span>Team Transparency</span><span>${report.pillars.teamTransparency.verified ? '✅' : '❌'}</span></div>
-          <div class="trust-row"><span>Fair Launch Pledge</span><span>${report.pillars.fairLaunchPledge.verified ? '✅' : '❌'}</span></div>
-          <div class="trust-row"><span>Liquidity Commitment</span><span>${report.pillars.liquidityCommitment.verified ? '✅' : '❌'}</span></div>
-          <div class="trust-row"><span>Treasury Transparency</span><span>${report.pillars.treasuryTransparency.verified ? '✅' : '❌'}</span></div>
-        `;
+      window.verifier.verify(address)
+        .then(report => {
+          let html = `
+            <div style="background:rgba(10,18,35,0.7); padding:1.2rem; border-radius:12px; margin:1rem 0;">
+              <div><strong>Address:</strong> ${report.address}</div>
+              <div><strong>Score:</strong> <span style="color:#6ee7b7; font-weight:bold;">${report.score}/500</span></div>
+              <div><strong>Tier:</strong> ${report.tier}</div>
+            </div>
+            
+            <h4>Trust Pillars</h4>
+            <div class="trust-row"><span>Team Transparency</span><span>${report.pillars.teamTransparency.verified ? '✅' : '❌'}</span></div>
+            <div class="trust-row"><span>Fair Launch Pledge</span><span>${report.pillars.fairLaunchPledge.verified ? '✅' : '❌'}</span></div>
+            <div class="trust-row"><span>Liquidity Commitment</span><span>${report.pillars.liquidityCommitment.verified ? '✅' : '❌'}</span></div>
+            <div class="trust-row"><span>Treasury Transparency</span><span>${report.pillars.treasuryTransparency.verified ? '✅' : '❌'}</span></div>
+          `;
 
-        if (report.risks.length) {
-          html += `<h4 style="color:#f87171;">Risks</h4><ul>`;
-          report.risks.forEach(r => html += `<li>${r}</li>`);
-          html += `</ul>`;
-        }
+          if (report.risks.length) {
+            html += `<h4 style="color:#f87171;">Risks</h4><ul>`;
+            report.risks.forEach(r => html += `<li>${r}</li>`);
+            html += `</ul>`;
+          }
 
-        if (report.warnings.length) {
-          html += `<h4>Warnings</h4><ul>`;
-          report.warnings.forEach(w => html += `<li>${w}</li>`);
-          html += `</ul>`;
-        }
+          if (report.warnings.length) {
+            html += `<h4>Warnings</h4><ul>`;
+            report.warnings.forEach(w => html += `<li>${w}</li>`);
+            html += `</ul>`;
+          }
 
-        resultDiv.innerHTML = html;
-      }).catch(err => {
-        resultDiv.innerHTML = `<p style="color:#f87171;">Error: ${err.message || 'Verification failed'}</p>`;
-      });
+          resultDiv.innerHTML = html;
+        })
+        .catch(err => {
+          console.error("Verification failed:", err);
+          resultDiv.innerHTML = `
+            <p style="color:#f87171;">❌ Verification failed</p>
+            <p style="font-size:0.9rem;">${err.message || 'Unknown error'}</p>
+            <p style="font-size:0.9rem; opacity:0.7;">Common causes:<br>
+            • No internet connection<br>
+            • RPC rate limit (try again in 30s)<br>
+            • Address has no on-chain activity</p>
+          `;
+        });
     }
 
     // ===== PAGE NAVIGATION =====
