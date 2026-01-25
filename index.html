@@ -4,8 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EthosiFi — Proof of Ethics, On-Chain</title>
+  <!-- Ethers.js for on-chain verification -->
+  <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" type="application/javascript"></script>
   <style>
-    /* ===== GLOBAL ===== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
       --teal: #6ee7b7;
@@ -25,7 +26,6 @@
       overflow-x: hidden;
     }
 
-    /* ===== MATRIX BACKGROUND ===== */
     #matrixCanvas {
       position: fixed;
       top: 0;
@@ -36,7 +36,6 @@
       pointer-events: none;
     }
 
-    /* ===== LAYOUT ===== */
     .container {
       position: relative;
       z-index: 2;
@@ -45,15 +44,14 @@
       padding: 2rem 1.5rem;
     }
 
-    .page { display: none; animation: fadeIn 0.4s ease; }
-    .page.active { display: block; }
+    .page { display: none; }
+    .page.active { display: block; animation: fadeIn 0.4s ease; }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ===== PANELS ===== */
     .panel {
       background: var(--panel);
       border: 1px solid var(--border);
@@ -80,7 +78,6 @@
     p { margin-bottom: 1rem; line-height: 1.6; }
     .highlight { color: var(--teal); font-weight: 600; }
 
-    /* ===== BUTTONS ===== */
     .btn {
       display: inline-block;
       padding: 0.8rem 1.8rem;
@@ -102,10 +99,7 @@
       color: var(--teal);
     }
 
-    /* ===== FORMS ===== */
-    .form-group {
-      margin-bottom: 1.2rem;
-    }
+    .form-group { margin-bottom: 1.2rem; }
     label {
       display: block;
       margin-bottom: 0.4rem;
@@ -124,7 +118,6 @@
       outline: 2px solid var(--teal);
     }
 
-    /* ===== DASHBOARD GRID ===== */
     .dashboard-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -148,7 +141,6 @@
       margin: 0.5rem 0;
     }
 
-    /* ===== TRUST INDICATORS ===== */
     .trust-row {
       display: flex;
       justify-content: space-between;
@@ -159,7 +151,6 @@
     .trust-status-verified { color: var(--verified); }
     .trust-status-unverified { color: var(--unverified); }
 
-    /* ===== NFT PREVIEW ===== */
     .nft-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -183,7 +174,6 @@
       max-height: 80%;
     }
 
-    /* ===== BANNER ===== */
     .banner {
       background: rgba(13, 148, 136, 0.15);
       border-left: 4px solid var(--teal);
@@ -194,7 +184,6 @@
       font-weight: 600;
     }
 
-    /* ===== FOOTER ===== */
     .footer {
       text-align: center;
       opacity: 0.6;
@@ -215,10 +204,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Matrix Background -->
   <canvas id="matrixCanvas"></canvas>
 
-  <!-- Simulated Data Banner -->
   <div class="banner">
     ⚠️ All scores and verification statuses are simulated. Actual data will be live on X1 testnet.
   </div>
@@ -234,6 +221,7 @@
           <div class="btn" onclick="showPage('investorLogin')">Log in as Investor</div>
           <div class="btn btn-outline" onclick="showPage('signupPage')">Create Account</div>
           <div class="btn btn-outline" onclick="showPage('reportScam')">Report Scam</div>
+          <div class="btn btn-outline" onclick="showPage('verifyWallet')">Verify Wallet</div>
         </div>
       </div>
     </div>
@@ -272,7 +260,7 @@
       </div>
     </div>
 
-    <!-- BUILDER FLOW -->
+    <!-- BUILDER FORM -->
     <div id="builderForm" class="page">
       <div class="panel">
         <h2>Builder Profile</h2>
@@ -292,6 +280,7 @@
       </div>
     </div>
 
+    <!-- CONSENT -->
     <div id="consentPage" class="page">
       <div class="panel">
         <h2>Data Consent</h2>
@@ -309,6 +298,7 @@
       </div>
     </div>
 
+    <!-- NFT SELECTION -->
     <div id="nftPage" class="page">
       <div class="panel">
         <h2>Select Your Reputation NFT Art</h2>
@@ -367,7 +357,7 @@
       </div>
     </div>
 
-    <!-- INVESTOR FLOW -->
+    <!-- INVESTOR DASHBOARD -->
     <div id="investorLogin" class="page">
       <div class="panel">
         <h2>Investor Dashboard</h2>
@@ -438,7 +428,7 @@
       </div>
     </div>
 
-    <!-- REPORT SCAM PAGE -->
+    <!-- REPORT SCAM -->
     <div id="reportScam" class="page">
       <div class="panel">
         <h2>Report Suspicious Activity</h2>
@@ -480,6 +470,27 @@
       </div>
     </div>
 
+    <!-- VERIFY WALLET -->
+    <div id="verifyWallet" class="page">
+      <div class="panel">
+        <h2>Ethoscan Wallet Verifier</h2>
+        <p>Enter a project wallet or token address to check its Ethoscan Score.</p>
+        
+        <div class="form-group">
+          <label>Wallet Address</label>
+          <input type="text" id="verifyAddress" placeholder="0x..." />
+        </div>
+        
+        <button class="btn" onclick="runVerification()">Verify Integrity</button>
+        <button class="btn btn-outline" onclick="showPage('loginPage')">Back</button>
+
+        <div id="verificationResult" style="margin-top: 1.5rem; display: none;">
+          <h3>Verification Report</h3>
+          <div id="reportContent"></div>
+        </div>
+      </div>
+    </div>
+
     <div class="footer">
       © 2026 EthosiFi Protocol — Building the immune system for Web4.<br>
       Ethoscan Genesis Score Standard v0.1 | ENS: ethosifi.eth
@@ -487,25 +498,154 @@
   </div>
 
   <script>
-    // === PAGE NAVIGATION ===
-    function showPage(pageId) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      const target = document.getElementById(pageId);
-      if (target) target.classList.add('active');
+    // ===== ETHOSCAN VERIFIER =====
+    class EthoscanVerifier {
+      constructor() {
+        this.provider = new ethers.providers.JsonRpcProvider("https://mainnet.base.org");
+      }
+
+      async verify(address) {
+        const result = {
+          address,
+          score: 0,
+          maxScore: 500,
+          tier: "Unverified",
+          pillars: {
+            teamTransparency: { verified: false, points: 0 },
+            fairLaunchPledge: { verified: false, points: 0 },
+            liquidityCommitment: { verified: false, points: 0 },
+            treasuryTransparency: { verified: false, points: 0 }
+          },
+          risks: [],
+          warnings: []
+        };
+
+        try {
+          // Treasury: Check if Gnosis Safe
+          const code = await this.provider.getCode(address);
+          if (code !== "0x") {
+            try {
+              const safe = new ethers.Contract(
+                address,
+                ["function getOwners() view returns (address[])"],
+                this.provider
+              );
+              const owners = await safe.getOwners();
+              if (owners.length >= 3) {
+                result.pillars.treasuryTransparency = { verified: true, points: 150 };
+              } else {
+                result.warnings.push(`Gnosis Safe has only ${owners.length} signers (<3)`);
+              }
+            } catch (e) {
+              result.risks.push("Contract is not a Gnosis Safe");
+            }
+          } else {
+            result.risks.push("Wallet is EOA — not multi-sig treasury");
+          }
+
+          // Simulated good addresses for demo
+          const goodAddresses = [
+            "0x742d35cc6634c0532925a3b8d4c9db4c2b6d9126"
+          ].map(a => a.toLowerCase());
+
+          const isGood = goodAddresses.includes(address.toLowerCase());
+          
+          if (isGood) {
+            result.pillars.liquidityCommitment = { verified: true, points: 150 };
+            result.pillars.teamTransparency = { verified: true, points: 100 };
+            result.pillars.fairLaunchPledge = { verified: true, points: 100 };
+          }
+
+          result.score = Object.values(result.pillars).reduce((sum, p) => sum + p.points, 0);
+          result.tier = this.getTier(result.score);
+
+          if (result.score < 200) result.risks.push("High scam risk: Insufficient trust signals");
+
+        } catch (err) {
+          console.error("Verification failed:", err);
+          result.warnings.push("Verification error: " + (err.message || "unknown"));
+        }
+
+        return result;
+      }
+
+      getTier(score) {
+        if (score >= 350) return "✅ Verified Builder";
+        if (score >= 200) return "🟡 Emerging Builder";
+        return "⚠️ Unverified";
+      }
     }
 
-    // === WALLET CONNECT SIMULATION ===
+    let verifier = null;
+
+    function runVerification() {
+      const input = document.getElementById('verifyAddress').value.trim();
+      if (!ethers.utils.isAddress(input)) {
+        alert("Please enter a valid Ethereum address.");
+        return;
+      }
+
+      if (!verifier) verifier = new EthoscanVerifier();
+
+      const resultDiv = document.getElementById('reportContent');
+      const container = document.getElementById('verificationResult');
+      container.style.display = 'block';
+      resultDiv.innerHTML = '<p>Verifying... (this may take 10-20 seconds)</p>';
+
+      verifier.verify(input).then(report => {
+        let html = `
+          <div style="background:rgba(10,18,35,0.7); padding:1.2rem; border-radius:12px; margin:1rem 0;">
+            <div><strong>Address:</strong> ${report.address}</div>
+            <div><strong>Score:</strong> <span style="color:#6ee7b7; font-weight:bold;">${report.score}/500</span></div>
+            <div><strong>Tier:</strong> ${report.tier}</div>
+          </div>
+          
+          <h4>Trust Pillars</h4>
+          <div class="trust-row"><span>Team Transparency</span><span>${report.pillars.teamTransparency.verified ? '✅' : '❌'}</span></div>
+          <div class="trust-row"><span>Fair Launch Pledge</span><span>${report.pillars.fairLaunchPledge.verified ? '✅' : '❌'}</span></div>
+          <div class="trust-row"><span>Liquidity Commitment</span><span>${report.pillars.liquidityCommitment.verified ? '✅' : '❌'}</span></div>
+          <div class="trust-row"><span>Treasury Transparency</span><span>${report.pillars.treasuryTransparency.verified ? '✅' : '❌'}</span></div>
+        `;
+
+        if (report.risks.length) {
+          html += `<h4 style="color:#f87171;">Risks</h4><ul>`;
+          report.risks.forEach(r => html += `<li>${r}</li>`);
+          html += `</ul>`;
+        }
+
+        if (report.warnings.length) {
+          html += `<h4>Warnings</h4><ul>`;
+          report.warnings.forEach(w => html += `<li>${w}</li>`);
+          html += `</ul>`;
+        }
+
+        resultDiv.innerHTML = html;
+      }).catch(err => {
+        resultDiv.innerHTML = `<p style="color:#f87171;">Error: ${err.message || 'Verification failed'}</p>`;
+      });
+    }
+
+    // ===== PAGE NAVIGATION =====
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+      });
+      const target = document.getElementById(pageId);
+      if (target) {
+        target.classList.add('active');
+      }
+    }
+
     function connectWallet() {
       alert("✅ Wallet connected via WalletConnect!\n(Real integration coming on X1 testnet)");
     }
 
-    // === SCAM REPORT SUBMISSION ===
     function submitReport() {
       alert("✅ Report submitted.\n\nNote: EthosiFi does not take enforcement action. We may use this data to update Ethoscan Scores based on on-chain verification.");
       showPage('loginPage');
     }
 
-    // === MATRIX RAIN ===
+    // ===== MATRIX RAIN =====
     (function() {
       const canvas = document.getElementById('matrixCanvas');
       const ctx = canvas.getContext('2d');
