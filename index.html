@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EthosiFi — Proof of Ethics, On-Chain</title>
-  <!-- Ethers.js - MUST be in head for global availability -->
-  <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" type="application/javascript"></script>
+  <!-- Ethers.js - More reliable CDN -->
+  <script src="https://unpkg.com/ethers@5.7.2/dist/umd/ethers.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
@@ -97,6 +97,10 @@
       background: transparent;
       border: 2px solid var(--teal);
       color: var(--teal);
+    }
+    .btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
     }
 
     .form-group { margin-bottom: 1.2rem; }
@@ -481,7 +485,7 @@
           <input type="text" id="verifyAddress" placeholder="0x..." />
         </div>
         
-        <button class="btn" onclick="runVerification()">Verify Integrity</button>
+        <button class="btn" id="verifyBtn" onclick="runVerification()">Verify Integrity</button>
         <button class="btn btn-outline" onclick="showPage('loginPage')">Back</button>
 
         <div id="verificationResult" style="margin-top: 1.5rem; display: none;">
@@ -521,7 +525,6 @@
         };
 
         try {
-          // Treasury: Check if Gnosis Safe
           const code = await this.provider.getCode(address);
           if (code !== "0x") {
             try {
@@ -543,7 +546,6 @@
             result.risks.push("Wallet is EOA — not multi-sig treasury");
           }
 
-          // Simulated good addresses for demo
           const goodAddresses = [
             "0x742d35cc6634c0532925a3b8d4c9db4c2b6d9126"
           ].map(a => a.toLowerCase());
@@ -576,16 +578,38 @@
       }
     }
 
-    // ===== ENHANCED VERIFICATION FUNCTION =====
+    // ===== SMART VERIFICATION WITH RETRY =====
     function runVerification() {
+      const btn = document.getElementById('verifyBtn');
+      btn.disabled = true;
+
       if (typeof ethers === 'undefined') {
-        alert("⚠️ Loading blockchain tools... Please wait 5 seconds and try again.");
+        let attempts = 0;
+        const interval = setInterval(() => {
+          if (typeof ethers !== 'undefined') {
+            clearInterval(interval);
+            doVerification(btn);
+          } else if (attempts >= 10) {
+            clearInterval(interval);
+            alert("⚠️ Failed to load blockchain tools. Please refresh the page.");
+            btn.disabled = false;
+            btn.textContent = "Verify Integrity";
+          } else {
+            attempts++;
+            btn.textContent = `Loading... (${attempts * 2}s)`;
+          }
+        }, 2000);
         return;
       }
 
+      doVerification(btn);
+    }
+
+    function doVerification(btn) {
       const input = document.getElementById('verifyAddress').value.trim();
       if (!input) {
         alert("Please enter a wallet address.");
+        resetButton(btn);
         return;
       }
 
@@ -593,18 +617,13 @@
       try {
         address = ethers.utils.getAddress(input);
       } catch (e) {
-        alert("Invalid Ethereum address. Please check and try again.");
+        alert("Invalid Ethereum address.");
+        resetButton(btn);
         return;
       }
 
       if (!window.verifier) {
-        try {
-          window.verifier = new EthoscanVerifier();
-        } catch (e) {
-          alert("Failed to initialize verifier. Make sure you're online.");
-          console.error(e);
-          return;
-        }
+        window.verifier = new EthoscanVerifier();
       }
 
       const resultDiv = document.getElementById('reportContent');
@@ -612,11 +631,12 @@
       container.style.display = 'block';
       resultDiv.innerHTML = `
         <p>🔍 Verifying on-chain integrity...</p>
-        <p style="font-size:0.9rem; opacity:0.7;">This may take 10-20 seconds. We're reading public data from Base Mainnet.</p>
+        <p style="font-size:0.9rem; opacity:0.7;">Reading public data from Base Mainnet.</p>
       `;
 
       window.verifier.verify(address)
         .then(report => {
+          resetButton(btn);
           let html = `
             <div style="background:rgba(10,18,35,0.7); padding:1.2rem; border-radius:12px; margin:1rem 0;">
               <div><strong>Address:</strong> ${report.address}</div>
@@ -646,16 +666,18 @@
           resultDiv.innerHTML = html;
         })
         .catch(err => {
+          resetButton(btn);
           console.error("Verification failed:", err);
           resultDiv.innerHTML = `
             <p style="color:#f87171;">❌ Verification failed</p>
-            <p style="font-size:0.9rem;">${err.message || 'Unknown error'}</p>
-            <p style="font-size:0.9rem; opacity:0.7;">Common causes:<br>
-            • No internet connection<br>
-            • RPC rate limit (try again in 30s)<br>
-            • Address has no on-chain activity</p>
+            <p>${err.message || 'Unknown error'}</p>
           `;
         });
+    }
+
+    function resetButton(btn) {
+      btn.disabled = false;
+      btn.textContent = "Verify Integrity";
     }
 
     // ===== PAGE NAVIGATION =====
