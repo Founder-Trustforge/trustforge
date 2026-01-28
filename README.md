@@ -8,10 +8,10 @@ EthosiFi is a decentralized reputation protocol that turns ethical on-chain beha
 
 We enable builders to prove integrity *before* token launch—and users to verify if a new project is more than a pump-and-dump scheme.
 
-🌐 **Website**: [ethosifi.xyz](https://ethosifi.xyz)  
+🌐 **Website**: [ethosifi.com](https://ethosifi.com)  
 📄 **Standard**: [Genesis TrustScore v0.1](./GENESIS_STANDARD.md)  
-🗞️ **Announcements**: [Mirror](https://mirror.xyz/ethosifi.eth)  
-🐦 **Updates**: [@ethosifi.xyz](https://twitter.com/ethosifi.xyz)
+🗞️ **Announcements**: [Mirror](https://mirror.com/ethosifi.eth)  
+🐦 **Updates**: [@ethosifi.com](https://twitter.com/ethosifi.com)
 
 ---
 
