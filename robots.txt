@@ -1,0 +1,38 @@
+# EthosiFi.com Robots.txt
+# Last updated: January 29, 2026
+
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /builder
+Allow: /investor
+Allow: /signup
+Allow: /report
+Allow: /verify
+
+# Block sensitive/admin paths (none exist yet, but good practice)
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+
+# Sitemap
+Sitemap: https://ethosifi.com/sitemap.xml
+
+# Crawl-delay for aggressive bots
+Crawl-delay: 1
+
+# Block specific bots that don't respect standards
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: BUbiNG
+Disallow: /
