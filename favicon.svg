@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- EthosiFi Shield Logo -->
+  <rect width="100" height="100" fill="#0a0f1a"/>
+  
+  <!-- Shield outline -->
+  <path d="M50 10 L90 30 L85 80 L50 100 L15 80 L10 30 Z" 
+        fill="none" 
+        stroke="#6ee7b7" 
+        stroke-width="3"
+        stroke-linejoin="round"/>
+  
+  <!-- E symbol (Ethics) -->
+  <path d="M35 40 H65 M35 50 H60 M35 60 H65" 
+        stroke="#6ee7b7" 
+        stroke-width="4" 
+        stroke-linecap="round"
+        fill="none"/>
+  
+  <!-- Blockchain connection dots -->
+  <circle cx="30" cy="30" r="3" fill="#6ee7b7"/>
+  <circle cx="40" cy="25" r="3" fill="#6ee7b7"/>
+  <circle cx="60" cy="25" r="3" fill="#6ee7b7"/>
+  <circle cx="70" cy="30" r="3" fill="#6ee7b7"/>
+  
+  <!-- Checkmark (verification) -->
+  <path d="M40 75 L48 85 L65 65" 
+        stroke="#34d399" 
+        stroke-width="4" 
+        stroke-linecap="round"
+        fill="none"
+        stroke-linejoin="round"/>
+</svg>
